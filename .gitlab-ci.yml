@@ -1,0 +1,59 @@
+stages:
+  - test
+  - deploy
+
+## Cache composer packages between all jobs and all branches
+## of this project...
+cache:
+  key: one-key-to-rull-them-all
+  paths:
+    - composer-cache/
+
+
+# Test with PHP7.2 
+test:php72:
+  stage: test
+  image: cylab/php72
+  services:
+    - mongo
+  before_script:
+    # Install all project dependencies
+    - COMPOSER_CACHE_DIR=./composer-cache composer install
+    # setup Laravel
+    - cp env.test .env
+    - touch storage/app/db.sqlite
+    - php artisan migrate
+  script:
+    - vendor/bin/phpunit --coverage-text --colors=never
+    - vendor/bin/phpcs
+    - vendor/bin/phpstan analyze --memory-limit=512M
+
+test:dependencies:
+  image: cylab/php72
+  script:
+    # in cylab/php72, security-checker is already installed...
+    - ~/.composer/vendor/bin/security-checker security:check composer.lock
+
+test:gitleaks:
+  stage: test
+  image: 
+    name: "zricethezav/gitleaks"
+    entrypoint: [""]
+  script:
+    # to avoid
+    # fatal: unsafe repository ('/builds/...' is owned by someone else)
+    # with recent git versions
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - gitleaks detect -v -c gitleaks.toml ./
+    
+# deploy only when pushed to branch master
+# and tests succeeded
+deploy:
+  stage: deploy
+  image: alpine
+  only:
+    - master
+  script:
+    - apk add wget
+    - wget "http://deployer.web-d.be/projects/19/deploy/CnyUff07McfEi7hQtHND7JWALkzKCmf4b4ddREUE"
+    
