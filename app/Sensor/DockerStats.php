@@ -16,11 +16,10 @@ class DockerStats extends AbstractSensor
     {
 
         $record = end($records);
-        if (! isset($record['dockerStats'])) {
+        if (! isset($record['DockerStats'])) {
             return "<p>No data available...</p>";
         }
-
-        $containers = $this->parse($record);
+        $containers = $this->parse($record['DockerStats']);
         $return = "<table class='table table-sm'>";
         $return .= "<tr>"
                 . "<th>Id</th>"
@@ -35,7 +34,7 @@ class DockerStats extends AbstractSensor
                 . "<th>Block Output %</th>"
                 . "<th>PID</th>"
                 . "</tr>";
-        foreach ($Containers as $container) {
+        foreach ($containers as $container) {
             $return .= "<tr>"
                     . "<td>" . $container['Id'] . "</td>"
                     . "<td>" . $container['Name'] . "</td>"
@@ -54,7 +53,6 @@ class DockerStats extends AbstractSensor
         return $return;
     }
 
-    
     public function status(array $records) : int
     {
         return \App\Status::OK;
@@ -67,14 +65,13 @@ class DockerStats extends AbstractSensor
      */
     public function parse(string $string)
     {
-
         if ($string == null) {
             return [];
         }
-        $result = []
+        $result = [];
         $lines = explode("\n", $string);
         for ($i = 1; $i < count($lines); $i++) {
-            $line = preg_split('/\s+/', $container);
+            $line = preg_split('/\s+/', $lines[$i]);
             $container = [];
             $container['Id'] = $line[0];
             $container['Name'] = $line[1];
@@ -85,8 +82,8 @@ class DockerStats extends AbstractSensor
             $container['Net_input'] = $line[7];
             $container['Net_output'] = $line[9];
             $container['Block_input'] = $line[10];
-            $container['Block_output'] = $line[11];
-            $container['PID'] = $line[12];
+            $container['Block_output'] = $line[12];
+            $container['PID'] = $line[13];
             $result[$i-1] = $container;
         }
 
