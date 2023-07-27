@@ -5,7 +5,7 @@ namespace App\Sensor;
 use \App\AbstractSensor;
 
 /**
- * Description of MemInfo
+ * Description of container stats in docker
  *
  * @author Elias El Hathout
  */
