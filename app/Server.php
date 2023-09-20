@@ -60,7 +60,8 @@ class Server extends Model
         // \App\Sensor\DiskEvolution::class,
         \App\Sensor\CPUtemperature::class,
         \App\Sensor\USBtemperature::class,
-        \App\Sensor\DockerStats::class
+        \App\Sensor\DockerStats::class,
+        \App\Sensor\ApacheLoad::class
 
     ];
 
